@@ -1,9 +1,11 @@
 import VoiceRecorder from "./components/VoiceRecorder";
+import ThemeToggle from "./components/ThemeToggle";
 
 export default function Home() {
   return (
     <main className="page-wrap">
       <header className="page-header">
+        <ThemeToggle />
         <p className="eyebrow">Sarvam Saaras v3</p>
         <h1>आवाज़ से टेक्स्ट</h1>
         <p className="subtitle">

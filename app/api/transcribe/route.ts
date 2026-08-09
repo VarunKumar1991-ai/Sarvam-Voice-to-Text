@@ -12,6 +12,20 @@ const client = new SarvamAIClient({
   apiSubscriptionKey: process.env.SARVAM_API_KEY,
 });
 
+const ALLOWED_MODES: readonly SarvamAI.Mode[] = [
+  "transcribe",
+  "verbatim",
+  "translate",
+  "translit",
+  "codemix",
+];
+
+function parseMode(value: FormDataEntryValue | null): SarvamAI.Mode {
+  return ALLOWED_MODES.includes(value as SarvamAI.Mode)
+    ? (value as SarvamAI.Mode)
+    : "transcribe";
+}
+
 // Sarvam के रियल-टाइम REST API से आने वाली संरचित एरर से असली मैसेज निकालना
 // ताकि यूज़र को "Transcription में गड़बड़ी हुई" जैसा अस्पष्ट मैसेज न मिले
 function extractSarvamErrorMessage(error: unknown): string | null {
@@ -44,11 +58,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const mode = parseMode(formData.get("mode"));
+
     const response = await client.speechToText.transcribe({
       file: audioFile, // ब्राउज़र से आया File/Blob सीधे SDK को दिया जा सकता है
       model: "saaras:v3",
       language_code: languageCode, // सटीकता के लिए सही भाषा कोड दें, जैसे hi-IN, en-IN
-      mode: "transcribe", // "verbatim" शब्द-दर-शब्द चाहिए तो इस्तेमाल करें
+      mode, // transcribe/verbatim/translate/translit/codemix — UI में यूज़र चुनता है
     });
 
     return NextResponse.json({ transcript: response.transcript });
